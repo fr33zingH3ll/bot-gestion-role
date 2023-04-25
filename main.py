@@ -1,12 +1,15 @@
 from contextlib import nullcontext
 import os
 import discord
+from os.path import join, dirname
 from dotenv import load_dotenv
 from rethinkdb import RethinkDB
 
-load_dotenv()
+dotenv_path = join(dirname(__file__), '.env.dev')
+load_dotenv(dotenv_path) # lire a partir du dotenv
+# load_dotenv()
 r = RethinkDB()
-conn = r.connect(host='localhost', port=28015, db='pokemon')
+conn = r.connect(host=os.getenv('DB_HOST_SERVER'), port=os.getenv('DB_HOST_PORT'), db=os.getenv('DB'))
 
 class MyClient(discord.Client):
 
@@ -24,8 +27,6 @@ class MyClient(discord.Client):
 
     async def on_ready(self):
         self.guild = self.get_guild(int(os.getenv("GUILD_ID")))
-        print(f"nom du serveur : {self.guild.name}")
-        print(os.getenv("GUILD_ID"))
         print(f'Logged on as {self.user}!')
 
     async def on_member_join(self,member):
