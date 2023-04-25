@@ -4,6 +4,7 @@ import discord
 from os.path import join, dirname
 from dotenv import load_dotenv
 from rethinkdb import RethinkDB
+from discord.ext import commands
 
 dotenv_path = join(dirname(__file__), '.env.dev')
 load_dotenv(dotenv_path) # lire a partir du .env.dev
@@ -24,6 +25,7 @@ class MyClient(discord.Client):
         'beginner':1100058041572937810,
         'non classé':1100340506506051584
     }
+    
 
     async def on_ready(self):
         self.guild = self.get_guild(int(os.getenv("GUILD_ID")))
@@ -39,6 +41,13 @@ class MyClient(discord.Client):
         r.table('classement').filter({'id':str(member.id)}).delete().run(conn)
 
     async def on_message(self, message):
+        # await self.test() 
+        await self.battle(message)   
+
+    async def test(self):
+        print("test réussi")
+        
+    async def battle(self, message):
         # Pokétwo
         # Freezing_Hell
         if 'Pokétwo' in str(message.author):
@@ -52,7 +61,6 @@ class MyClient(discord.Client):
             classement = r.table('classement').order_by(r.desc('pts')).run(conn)
             await self.update_classement(classement)
             await self.gestion_roles(classement)
-
 
     async def update_classement(self,classement):
         channel = await self.fetch_channel('1100139943533228062')
@@ -71,27 +79,24 @@ class MyClient(discord.Client):
             # Role master
             if i == 1:
                 await self.update_roles(member,self.dict_roles_tournament['master'])
-                print(f"{member} aura le role {self.guild.get_role(self.dict_roles_tournament['master']).name}")
             # Role champion
             if i >1 and i <= 5:
                 await self.update_roles(member,self.dict_roles_tournament['champion'])
-                print(f"{member} aura le role {self.guild.get_role(self.dict_roles_tournament['champion']).name}")
             # Role challenger
             if i > 5 and i <= 20:
                 await self.update_roles(member,self.dict_roles_tournament['challenger'])
-                print(f"{member} aura le role {self.guild.get_role(self.dict_roles_tournament['challenger']).name}")
             # Role hobbyist
             if i > 20 and i <= 50:
                 await self.update_roles(member,self.dict_roles_tournament['hobbyist'])
-                print(f"{member} aura le role {self.guild.get_role(self.dict_roles_tournament['hobbyist']).name}")
             # Role beginner
             if i > 50 and i <=100:
                 await self.update_roles(member,self.dict_roles_tournament['beginner'])
-                print(f"{member} aura le role {self.guild.get_role(self.dict_roles_tournament['beginner']).name}")
             # Role non classé
             if i >100:
                 await self.update_roles(member,self.dict_roles_tournament['non classé'])
-                print(f"{member} aura le role {self.guild.get_role(self.dict_roles_tournament['non classé']).name}")
+        print('--------------------------------')
+        print('INFO : traitement de \'update_roles()\' terminé ')
+        print('--------------------------------')
 
     # update_roles( Member : membre, int : id a ajouter ) ## retireras tous les autres roles s'il y en a 
     async def update_roles(self,member,role_id_to_add):
@@ -100,9 +105,18 @@ class MyClient(discord.Client):
                 await member.remove_roles(self.guild.get_role(role))
         await member.add_roles(self.guild.get_role(role_id_to_add))
 
+   
+    
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+@bot.command()
+async def test(ctx):
+    await ctx.send("hello")
 
 client = MyClient(intents=intents)
 client.run(os.getenv("ACCESS_TOKEN"))
