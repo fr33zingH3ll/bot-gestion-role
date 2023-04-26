@@ -5,7 +5,7 @@ from discord.ext import commands
 from datetime import datetime
 
 r = RethinkDB()
-conn = r.connect(host=os.getenv('DB_HOST_SERVER'),port=os.getenv('DB_HOST_PORT'), db=os.getenv('DB'))
+conn = r.connect(host=os.getenv('DB_HOST_SERVER'),port=os.getenv('DB_HOST_PORT'), db=os.getenv('DB_NAME'))
 
 
 class MyClient(discord.Client):
@@ -29,10 +29,9 @@ class MyClient(discord.Client):
         self.guild = self.get_guild(int(os.getenv("GUILD_ID")))
         self.classement = r.table("classement").order_by(
             r.desc('pts')).run(conn)
-        for player in self.classement:
-            for member in self.guild.members:
-                if str(member.id) != player['id'] and not member.bot:
-                    r.table('classement').insert(
+        for member in self.guild.members:
+            if not member.bot:
+                r.table('classement').insert(
                         {'id': str(member.id), 'pts': 0}).run(conn)
         await self.updates_bot()
         print(f'Logged on as {self.user}!')
@@ -105,7 +104,8 @@ class MyClient(discord.Client):
         for i, member in enumerate(self.classement):
             i += 1
             content += f"{i} -> <@{int(member['id'])}> avec {member['pts']}\n"
-        await message.edit(content=content)
+        if len(content) != 0:
+            await message.edit(content=content)
 
     async def gestion_roles(self):
         """défini a partir du classement les roles a attribuer a chaque joueurs.
