@@ -115,22 +115,22 @@ class MyClient(discord.Client):
             i += 1
             member = await self.guild.fetch_member(int(member['id']))
             # Role master
-            if i == 1 and member.get_role(self.dict_roles_tournament['master']) == None:
+            if member.get_role(self.dict_roles_tournament['master']) == None and member['pts'] >= 10000:
                 await self.update_roles(member, self.dict_roles_tournament['master'])
             # Role champion
-            elif i > 1 and i <= 5 and member.get_role(self.dict_roles_tournament['champion']) == None:
+            elif member.get_role(self.dict_roles_tournament['champion']) == None and member['pts'] >= 7500:
                 await self.update_roles(member, self.dict_roles_tournament['champion'])
             # Role challenger
-            elif i > 5 and i <= 20 and member.get_role(self.dict_roles_tournament['challenger']) == None:
+            elif member.get_role(self.dict_roles_tournament['challenger']) == None and member['pts'] >= 5000:
                 await self.update_roles(member, self.dict_roles_tournament['challenger'])
             # Role hobbyist
-            elif i > 20 and i <= 50 and member.get_role(self.dict_roles_tournament['hobbyist']) == None:
+            elif member.get_role(self.dict_roles_tournament['hobbyist']) == None and member['pts'] >= 2500:
                 await self.update_roles(member, self.dict_roles_tournament['hobbyist'])
             # Role beginner
-            elif i > 50 and i <= 100 and member.get_role(self.dict_roles_tournament['beginner']) == None:
+            elif member.get_role(self.dict_roles_tournament['beginner']) == None and member['pts'] >= 1000:
                 await self.update_roles(member, self.dict_roles_tournament['beginner'])
             # Role non classé
-            elif i > 100 and member.get_role(self.dict_roles_tournament['non classé']) == None:
+            elif member.get_role(self.dict_roles_tournament['non classé']) == None and member['pts'] < 1000:
                 await self.update_roles(member, self.dict_roles_tournament['non classé'])
         print('--------------------------------')
         print('INFO : traitement de \'update_roles()\' terminé ')
