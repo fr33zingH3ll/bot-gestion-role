@@ -1,18 +1,11 @@
-from contextlib import nullcontext
 import os
 import discord
-from os.path import join, dirname
-from dotenv import load_dotenv
 from rethinkdb import RethinkDB
 from discord.ext import commands
 from datetime import datetime
 
-dotenv_path = join(dirname(__file__), '.env.dev')
-load_dotenv(dotenv_path)  # lire a partir du .env.dev
-# load_dotenv()
 r = RethinkDB()
-conn = r.connect(host=os.getenv('DB_HOST_SERVER'),
-                 port=os.getenv('DB_HOST_PORT'), db=os.getenv('DB'))
+conn = r.connect(host=os.getenv('DB_HOST_SERVER'),port=os.getenv('DB_HOST_PORT'), db=os.getenv('DB'))
 
 
 class MyClient(discord.Client):
