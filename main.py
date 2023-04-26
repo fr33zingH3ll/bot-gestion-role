@@ -145,10 +145,13 @@ class MyClient(discord.Client):
             role_id_to_add (int): Integer, id du role a attribuer.
         """
         roles = []
+        if member['pts'] == 0:
+            return await member.add_roles(self.dict_roles_tournament['non classé'])
         for role in self.dict_roles_tournament.values():
             if member.get_role(role) != None:
                 roles.append(self.guild.get_role(role))
-        await member.remove_roles(*roles)
+        if len(roles) != 0:
+            await member.remove_roles(*roles)
         await member.add_roles(self.guild.get_role(role_id_to_add))
 
 
