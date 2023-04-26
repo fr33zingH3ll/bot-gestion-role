@@ -5,7 +5,8 @@ from discord.ext import commands
 from datetime import datetime
 
 r = RethinkDB()
-conn = r.connect(host=os.getenv('DB_HOST_SERVER'),port=os.getenv('DB_HOST_PORT'), db=os.getenv('DB_NAME'))
+conn = r.connect(host=os.getenv('DB_HOST_SERVER'), port=os.getenv(
+    'DB_HOST_PORT'), db=os.getenv('DB_NAME'))
 
 
 class MyClient(discord.Client):
@@ -27,12 +28,14 @@ class MyClient(discord.Client):
         """quand le bot est lancé.
         """
         self.guild = self.get_guild(int(os.getenv("GUILD_ID")))
-        self.classement = r.table("classement").order_by(
-            r.desc('pts')).run(conn)
+
         for member in self.guild.members:
             if not member.bot:
-                r.table('classement').insert(
-                        {'id': str(member.id), 'pts': 0}).run(conn)
+                r.table('classement').insert({'id': str(member.id), 'pts': 0}).run(conn)
+        self.classement = r.table("classement").order_by(r.desc('pts')).run(conn)
+        for member in self.classement:
+            if not member in self.guild.members:
+                r.table('classement').get(member['id']).delete().run(conn)
         await self.updates_bot()
         print(f'Logged on as {self.user}!')
 
@@ -111,26 +114,26 @@ class MyClient(discord.Client):
         """défini a partir du classement les roles a attribuer a chaque joueurs.
         """
         print('--------------------------------------------')
-        for i, member in enumerate(self.classement):
+        for i, player in enumerate(self.classement):
             i += 1
-            member = await self.guild.fetch_member(int(member['id']))
+            member = await self.guild.fetch_member(int(player['id']))
             # Role master
-            if member.get_role(self.dict_roles_tournament['master']) == None and member['pts'] >= 10000:
+            if member.get_role(self.dict_roles_tournament['master']) == None and player['pts'] >= 10000:
                 await self.update_roles(member, self.dict_roles_tournament['master'])
             # Role champion
-            elif member.get_role(self.dict_roles_tournament['champion']) == None and member['pts'] >= 7500:
+            elif member.get_role(self.dict_roles_tournament['champion']) == None and player['pts'] >= 7500:
                 await self.update_roles(member, self.dict_roles_tournament['champion'])
             # Role challenger
-            elif member.get_role(self.dict_roles_tournament['challenger']) == None and member['pts'] >= 5000:
+            elif member.get_role(self.dict_roles_tournament['challenger']) == None and player['pts'] >= 5000:
                 await self.update_roles(member, self.dict_roles_tournament['challenger'])
             # Role hobbyist
-            elif member.get_role(self.dict_roles_tournament['hobbyist']) == None and member['pts'] >= 2500:
+            elif member.get_role(self.dict_roles_tournament['hobbyist']) == None and player['pts'] >= 2500:
                 await self.update_roles(member, self.dict_roles_tournament['hobbyist'])
             # Role beginner
-            elif member.get_role(self.dict_roles_tournament['beginner']) == None and member['pts'] >= 1000:
+            elif member.get_role(self.dict_roles_tournament['beginner']) == None and player['pts'] >= 1000:
                 await self.update_roles(member, self.dict_roles_tournament['beginner'])
             # Role non classé
-            elif member.get_role(self.dict_roles_tournament['non classé']) == None and member['pts'] < 1000:
+            elif member.get_role(self.dict_roles_tournament['non classé']) == None and player['pts'] < 1000:
                 await self.update_roles(member, self.dict_roles_tournament['non classé'])
         print('--------------------------------')
         print('INFO : traitement de \'update_roles()\' terminé ')
@@ -145,13 +148,10 @@ class MyClient(discord.Client):
             role_id_to_add (int): Integer, id du role a attribuer.
         """
         roles = []
-        if member['pts'] == 0:
-            return await member.add_roles(self.dict_roles_tournament['non classé'])
         for role in self.dict_roles_tournament.values():
             if member.get_role(role) != None:
                 roles.append(self.guild.get_role(role))
-        if len(roles) != 0:
-            await member.remove_roles(*roles)
+        await member.remove_role(*roles)
         await member.add_roles(self.guild.get_role(role_id_to_add))
 
 
