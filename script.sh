@@ -1,7 +1,7 @@
-export ACCESS_TOKEN=MTEwMDA3Mjc2MjUzMTM4OTUxMw.GOLc0y.PTLAAD9GruYCDbautdsWCSojHdpnj1U8RLetoQ
-export GUILD_ID=1100048996812214272
-export DB_HOST_SERVER=localhost
-export DB_HOST_PORT=28015
-export DB_NAME=pokemon
+export ACCESS_TOKEN=
+export GUILD_ID=
+export DB_HOST_SERVER=
+export DB_HOST_PORT=
+export DB_NAME=
 
 python3 main.py
