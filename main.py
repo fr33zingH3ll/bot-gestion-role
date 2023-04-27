@@ -33,9 +33,17 @@ class MyClient(discord.Client):
             if not member.bot:
                 r.table('classement').insert({'id': str(member.id), 'pts': 0}).run(conn)
         self.classement = r.table("classement").order_by(r.desc('pts')).run(conn)
-        for member in self.classement:
-            if not member in self.guild.members:
-                r.table('classement').get(member['id']).delete().run(conn)
+        for player in self.classement:
+            notsup = False
+            for member in self.guild.members:
+                if player['id'] != str(member.id):
+                    pass
+                else:
+                    print(player)
+                    notsup = True
+            if not notsup:
+                r.table('classement').get(player['id']).delete().run(conn)
+            
         await self.updates_bot()
         print(f'Logged on as {self.user}!')
 
