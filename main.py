@@ -71,7 +71,7 @@ class MyClient(discord.Client):
         Args:
             message (Message): discord.Message.
         """
-        if message.author.id == 716390085896962058:
+        if message.author.id == 716390085896962058 or message.author.id == 521028065803894804 :
             await self.battle(message)
 
     async def battle(self, message):
