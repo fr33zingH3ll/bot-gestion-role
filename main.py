@@ -11,8 +11,8 @@ conn = r.connect(host=os.getenv('DB_HOST_SERVER'), port=os.getenv(
 
 class MyClient(discord.Client):
 
-    pointToAdd = 10
-    pointToRemove = 20
+    pointToAdd = 100
+    pointToRemove = 200
     guild = ''
     dict_roles_tournament = {
         'master': 1100058331550322688,
